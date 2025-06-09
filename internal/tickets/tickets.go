@@ -1,21 +1,11 @@
 package tickets
 
 import (
+	Contracts "challenge/pkg/interfaces"
 	"errors"
 	"strings"
-	"time"
 )
 
-type Ticket struct {
-	id       int
-	name     string
-	email    string
-	country  string
-	schedule time.Time
-	price    float64
-}
-
-// TODO separate tickets by country
 func GetTotalTickets(destination string, data []string) (int, error) {
 	var total []string
 
@@ -28,26 +18,40 @@ func GetTotalTickets(destination string, data []string) (int, error) {
 	return len(total), nil
 }
 
-func GetCountByPeriod(p string, data []string) (int, error) {
+func GetCountByPeriod(p string, list []Contracts.Ticket) (int, error) {
 	earlyMorning := "earlyMorning"
 	morning := "morning"
 	afternoon := "afternoon"
 	night := "night"
-
-	getSchedules(data)
 
 	var flights int
 	var err error
 
 	switch p {
 	case earlyMorning:
-		getEarlyMorningFlights()
+		for _, i := range list {
+			if i.Schedule >= 0 && i.Schedule <= 6 {
+				flights++
+			}
+		}
 	case morning:
-		getMorningFlights()
+		for _, i := range list {
+			if i.Schedule >= 7 && i.Schedule <= 12 {
+				flights++
+			}
+		}
 	case afternoon:
-		getAfternoonFlights()
+		for _, i := range list {
+			if i.Schedule >= 13 && i.Schedule <= 19 {
+				flights++
+			}
+		}
 	case night:
-		getNightFlights()
+		for _, i := range list {
+			if i.Schedule >= 20 && i.Schedule <= 23 {
+				flights++
+			}
+		}
 	default:
 		err = errors.New("Schedule not available. Choose between early morning, morning, afternoon or night.")
 		panic(err.Error())
@@ -56,32 +60,19 @@ func GetCountByPeriod(p string, data []string) (int, error) {
 	return flights, nil
 }
 
-func getSchedules(data []string) []string {
-	var s []string
-	// for _, d := range data {
+func AverageDestination(destination string, list []Contracts.Ticket) (float64, error) {
+	if len(list) == 0 {
+		return 0, errors.New("no such country on the list")
+	}
 
-	// }
-	return s
+	var countCountry int
+	for _, t := range list {
+		if t.Country == destination {
+			countCountry++
+		}
+	}
+
+	result := (float64(countCountry) / float64(len(list))) * 100
+
+	return result, nil
 }
-
-func getEarlyMorningFlights() {
-
-}
-
-func getMorningFlights() {
-
-}
-
-func getAfternoonFlights() {
-
-}
-
-func getNightFlights() {
-
-}
-
-// // ejemplo 2
-// func GetMornings(time string) (int error) {}
-
-// // ejemplo 3
-// func AverageDestination(destination string, total int) (int error) {}
